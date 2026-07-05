@@ -1,205 +1,461 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Voyage IN P5.js</title>
+    <title>Prashant's Voyage in p5.js</title>
     <link
       rel="icon"
       href="https://media2.giphy.com/media/l41YtzJmMgEyOWBKU/giphy.gif?cid=ecf05e47lav17vbfrpo6jurbgxrzsaymdyti9uhc66tfiaa0&ep=v1_gifs_search&rid=giphy.gif&ct=g"
       type="image/gif"
     />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
-      crossorigin="anonymous"
-    />
 
     <style>
-      /* Add any additional custom styles here */
-      .iframe-container {
-        position: relative;
-        overflow-x: hidden;
-        padding-top: 56.25%;
+      :root {
+        --bg: #0b0d12;
+        --bg-elevated: #12151c;
+        --border: #232733;
+        --text: #eef0f4;
+        --text-dim: #9aa2b1;
+        --accent: #7c9cff;
+        --accent-2: #ff7ce0;
+        --games: #ff7c7c;
+        --generative: #7cffb2;
+        --algorithms: #7cc8ff;
       }
-      .responsive-iframe {
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+
+      header {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 56px 24px 24px;
+      }
+
+      header h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin: 0 0 12px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      header p {
+        max-width: 720px;
+        color: var(--text-dim);
+        line-height: 1.6;
+        font-size: 1.05rem;
+      }
+
+      .filters {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px 32px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .filter-btn {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .filter-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .filter-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #0b0d12;
+        font-weight: 600;
+      }
+
+      .grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 22px;
+      }
+
+      .card {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+      }
+
+      .card.hidden {
+        display: none;
+      }
+
+      .card-preview {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: linear-gradient(135deg, #1a1e29, #12151c);
+      }
+
+      .card-preview iframe {
         position: absolute;
         top: 0;
         left: 0;
+        width: 1200px;
+        height: 675px;
+        transform-origin: top left;
+        border: none;
+        pointer-events: none;
+      }
+
+      .card-preview .open-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition: opacity 0.15s ease;
+      }
+
+      .card:hover .open-hint {
+        opacity: 1;
+      }
+
+      .card-info {
+        padding: 14px 16px 16px;
+      }
+
+      .card-info h3 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .badge.games {
+        background: color-mix(in srgb, var(--games) 18%, transparent);
+        color: var(--games);
+      }
+
+      .badge.generative {
+        background: color-mix(in srgb, var(--generative) 18%, transparent);
+        color: var(--generative);
+      }
+
+      .badge.algorithms {
+        background: color-mix(in srgb, var(--algorithms) 18%, transparent);
+        color: var(--algorithms);
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 5, 8, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: clamp(10px, 3vw, 40px);
+      }
+
+      .modal-overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        width: 100%;
+        height: 100%;
+        max-width: 1400px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .modal-actions a,
+      .modal-actions button {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+
+      .modal-actions a:hover,
+      .modal-actions button:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .modal-body {
+        flex: 1;
+        background: #000;
+      }
+
+      .modal-body iframe {
         width: 100%;
         height: 100%;
         border: none;
       }
-      /* Style for the button groups */
-      .button-group {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-bottom: 20px;
+
+      footer {
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        padding: 20px 24px 40px;
       }
-      .button-group .btn {
-        margin: 5px;
-      }
-      body {
-        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+
+      footer a {
+        color: var(--accent);
       }
     </style>
   </head>
   <body>
-    <div class="container-fluid mt-3">
-      <div class="row">
-        <div class="col-md-12 text-center">
-          <h1 class="display-3">Prashant's Voyage In P5.js</h1>
-        </div>
-      </div>
+    <header>
+      <h1>Prashant's Voyage in p5.js</h1>
+      <p>
+        This is the exploratory gallery for all the mini-projects I've built
+        with p5.js — some are games, some are interactive tools, and others
+        are just mesmerizing generative patterns. Click any card to open it
+        fullscreen.
+      </p>
+    </header>
 
-      <div class="row mt-3">
-        <div class="col-md-6">
-          <h2 class="display-4">What am I doing here?</h2>
-          <p class="blockquote">
-            This is the exploratory tab for all the mini-projects I created by
-            p5.js, some of them are games while others may be just some
-            mesmerizing patterns.
-          </p>
-        </div>
-      </div>
+    <nav class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="games">
+        Games &amp; Interactive
+      </button>
+      <button class="filter-btn" data-filter="generative">
+        Generative Art
+      </button>
+      <button class="filter-btn" data-filter="algorithms">Algorithms</button>
+    </nav>
 
-      <div class="card mx-5 shadow">
-        <div class="row mt-3">
-          <div class="col-md-12 text-center">
-            <!-- Button Group for Interactive Projects -->
-            <div class="button-group bg-dark-subtle mx-2 my-1 rounded">
-              <div class="col-md-12">
-                <h1 class="display-5">Interactiables</h1>
-              </div>
-              <button
-                class="btn btn-outline-info btn-dark change-iframe m-3"
-                data-src="OOPFT\index.html"
-              >
-                Fractal Tree
-              </button>
-              <button
-                class="btn btn-outline-success btn-dark change-iframe m-3"
-                data-src="LSystemFractalTree\index.html"
-              >
-                L System Fractal Tree
-              </button>
-              <button
-                class="btn btn-outline-danger btn-dark change-iframe m-3"
-                data-src="ASTART\fullscreen.html"
-              >
-                Astar Search
-              </button>
-              <button
-                class="btn btn-outline-warning btn-dark change-iframe m-3"
-                data-src="SnakeGame\index.html"
-              >
-                Snake Game
-              </button>
-              <button
-                class="btn btn-outline-info btn-dark change-iframe m-3"
-                data-src="SorTME\index.html"
-              >
-                Multiple Sorts
-              </button>
-              <button
-                class="btn btn-outline-light btn-dark change-iframe m-3"
-                data-src="StarInvaders\index.html"
-              >
-                Star Invaders
-              </button>
-              <button
-                class="btn btn-outline-primary btn-dark change-iframe m-3"
-                data-src="2DSupershape\index.html"
-              >
-                2D Auto SuperShape
-              </button>
-            </div>
+    <main class="grid" id="grid"></main>
 
-            <!-- Button Group for Non-interactive Projects -->
-            <div class="button-group bg-success-subtle mx-2 my-1 rounded">
-              <div class="col-md-12">
-                <h1 class="display-5">Non-interactiables</h1>
-              </div>
-              <button
-                class="btn btn-outline-danger btn-light change-iframe m-3"
-                data-src="FractalTrees\index.html"
-              >
-                Auto Generated Angle Select Fractal Tree
-              </button>
-              <button
-                class="btn btn-outline-dark btn-light change-iframe m-3"
-                data-src="SpaceColonizationTree\index.html"
-              >
-                Space Colonizer Fractal Tree
-              </button>
-              <button
-                class="btn btn-outline-warning btn-light change-iframe m-3"
-                data-src="RactionDefusionModel\index.html"
-              >
-                Reaction Diffusion Model
-              </button>
-              <button
-                class="btn btn-outline-primary btn-light change-iframe m-3"
-                data-src="TSP\index.html"
-              >
-                TSP - V0.0.1
-              </button>
-              <button
-                class="btn btn-outline-secondary btn-light change-iframe m-3"
-                data-src="Phyllotaxis\index.html"
-              >
-                Phyllotaxis
-              </button>
-              <button
-                class="btn btn-outline-info btn-light change-iframe m-3"
-                data-src="TSPLexical\index.html"
-              >
-                TSP Evolved (V0.25.1)</button
-              ><button
-                class="btn btn-outline-success btn-light change-iframe m-3"
-                data-src="TSP-Genetic Alogrithm\index.html"
-              >
-                Genetical TSP (V1.25.1)
-              </button>
-              <button
-                class="btn btn-outline-secondary btn-light change-iframe m-3"
-                data-src="MandelbrotSet\index.html"
-              >
-                Mandelbrot Set</button
-              ><button
-                class="btn btn-outline-danger btn-light change-iframe m-3"
-                data-src="SmartRockets\index.html"
-              >
-                Wandering Rocket
-              </button>
-            </div>
+    <footer>
+      Built with p5.js ·
+      <a href="https://github.com/prashant-singh-2001/P5js" target="_blank"
+        >source on GitHub</a
+      >
+    </footer>
+
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle"></h3>
+          <div class="modal-actions">
+            <a id="modalNewTab" href="#" target="_blank">Open in new tab ↗</a>
+            <button id="modalClose">Close ✕</button>
           </div>
         </div>
-
-        <div class="row mt-1 justify-content-center align-items-center">
-          <div class="col-md-10 text-center iframe-container">
-            <iframe
-              class="responsive-iframe"
-              id="iframe"
-              src=""
-              frameborder="0"
-              allowfullscreen
-            ></iframe>
-          </div>
+        <div class="modal-body">
+          <iframe id="modalIframe" src=""></iframe>
         </div>
       </div>
     </div>
 
     <script>
-      const iframe = document.getElementById("iframe");
-      const changeButtons = document.querySelectorAll(".change-iframe");
+      const PROJECTS = [
+        // Games & Interactive
+        { title: "Fractal Tree (OOP)", path: "OOPFT/index.html", category: "games" },
+        { title: "Snake Game", path: "SnakeGame/index.html", category: "games" },
+        { title: "Star Invaders", path: "StarInvaders/index.html", category: "games" },
+        { title: "A* Pathfinding", path: "ASTART/fullscreen.html", category: "games" },
+        { title: "2D Auto Supershape", path: "2DSupershape/index.html", category: "games" },
+        { title: "Multiple Sorts", path: "SorTME/index.html", category: "games" },
+        { title: "The Diastic Machine", path: "DiasticMachine/index.html", category: "games" },
 
-      changeButtons.forEach((button) => {
-        button.addEventListener("click", function () {
-          const newSrc = this.getAttribute("data-src");
-          iframe.src = newSrc;
+        // Generative Art
+        { title: "Angle-Select Fractal Tree", path: "FractalTrees/index.html", category: "generative" },
+        { title: "L-System Fractal Tree", path: "LSystemFractalTree/index.html", category: "generative" },
+        { title: "Space Colonization Tree", path: "SpaceColonizationTree/index.html", category: "generative" },
+        { title: "Phyllotaxis", path: "Phyllotaxis/index.html", category: "generative" },
+        { title: "Reaction-Diffusion Model", path: "RactionDefusionModel/index.html", category: "generative" },
+        { title: "Mandelbrot Set", path: "MandelbrotSet/index.html", category: "generative" },
+        { title: "Wandering Rocket", path: "SmartRockets/index.html", category: "generative" },
+        { title: "Blobby", path: "Blobby/index.html", category: "generative" },
+        { title: "Lexical", path: "Lexical/index.html", category: "generative" },
+
+        // Algorithms
+        { title: "TSP — Brute Force (V0.0.1)", path: "TSP/index.html", category: "algorithms" },
+        { title: "TSP Evolved — Lexical (V0.25.1)", path: "TSPLexical/index.html", category: "algorithms" },
+        { title: "Genetic TSP (V1.25.1)", path: "TSP-Genetic Alogrithm/index.html", category: "algorithms" },
+        { title: "Genetic TSP + Crossover", path: "TSP-Genetic Alogrithm & Crossover/index.html", category: "algorithms" },
+      ];
+
+      const grid = document.getElementById("grid");
+      const modalOverlay = document.getElementById("modalOverlay");
+      const modalIframe = document.getElementById("modalIframe");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalNewTab = document.getElementById("modalNewTab");
+      const modalClose = document.getElementById("modalClose");
+
+      function openModal(project) {
+        const url = encodeURI(project.path);
+        modalTitle.textContent = project.title;
+        modalNewTab.href = url;
+        modalIframe.src = url;
+        modalOverlay.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove("open");
+        modalIframe.src = "";
+        document.body.style.overflow = "";
+      }
+
+      modalClose.addEventListener("click", closeModal);
+      modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modalOverlay.classList.contains("open")) {
+          closeModal();
+        }
+      });
+
+      const previewObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const preview = entry.target;
+            const url = preview.dataset.src;
+            if (entry.isIntersecting) {
+              if (!preview.querySelector("iframe")) {
+                const iframe = document.createElement("iframe");
+                iframe.src = url;
+                iframe.loading = "lazy";
+                iframe.tabIndex = -1;
+                preview.insertBefore(iframe, preview.firstChild);
+                requestAnimationFrame(() => {
+                  const scale = preview.clientWidth / 1200;
+                  iframe.style.transform = `scale(${scale})`;
+                });
+              }
+            } else {
+              const existing = preview.querySelector("iframe");
+              if (existing) existing.remove();
+            }
+          });
+        },
+        { rootMargin: "150px" }
+      );
+
+      PROJECTS.forEach((project) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.category = project.category;
+
+        const categoryLabel = {
+          games: "Games & Interactive",
+          generative: "Generative Art",
+          algorithms: "Algorithms",
+        }[project.category];
+
+        card.innerHTML = `
+          <div class="card-preview" data-src="${encodeURI(project.path)}">
+            <div class="open-hint">Click to open fullscreen ⛶</div>
+          </div>
+          <div class="card-info">
+            <h3>${project.title}</h3>
+            <span class="badge ${project.category}">${categoryLabel}</span>
+          </div>
+        `;
+
+        card.addEventListener("click", () => openModal(project));
+        grid.appendChild(card);
+
+        const preview = card.querySelector(".card-preview");
+        previewObserver.observe(preview);
+      });
+
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".filter-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const filter = btn.dataset.filter;
+          document.querySelectorAll(".card").forEach((card) => {
+            const show = filter === "all" || card.dataset.category === filter;
+            card.classList.toggle("hidden", !show);
+          });
         });
       });
     </script>

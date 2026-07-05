@@ -7,17 +7,17 @@
     <script
       language="javascript"
       type="text/javascript"
-      src="libraries/p5.js"
+      src="https://cdn.jsdelivr.net/npm/p5@0.5.6/lib/p5.min.js"
     ></script>
     <script
       language="javascript"
       type="text/javascript"
-      src="libraries/p5.dom.js"
+      src="https://cdn.jsdelivr.net/npm/p5@0.5.6/lib/addons/p5.dom.min.js"
     ></script>
     <script
       language="javascript"
       type="text/javascript"
-      src="libraries/p5.sound.js"
+      src="https://cdn.jsdelivr.net/npm/p5@0.5.6/lib/addons/p5.sound.min.js"
     ></script>
     <script
       language="javascript"
@@ -33,6 +33,16 @@
         align-items: flex-start;
         height: 100vh;
         margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        padding: 24px;
+      }
+
+      #output {
+        margin-top: 16px;
+        max-width: 700px;
+        line-height: 1.6;
+        font-size: 1.1rem;
       }
     </style>
   </head>
@@ -40,8 +50,14 @@
   <body>
     <h1>The Diastic Machine</h1>
     <p>
+      Reads through <code>text.txt</code> and pulls out one word per letter of
+      your phrase, where the letter's position in the word matches its
+      position in the phrase (Jackson Mac Low's diastic technique).
+    </p>
+    <p>
       Phrase : <input id="seed" value="Anything" />
       <button id="submit">Submit</button>
     </p>
+    <div id="output"></div>
   </body>
 </html>
